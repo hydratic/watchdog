@@ -15,6 +15,7 @@ pub const TARGET: &str = ":c//";
 macro_rules! lex {
     () => {{
         let mut comment: i2;
+        let mut line_num: i32 = 0;
         let mut token_length: i4;
         let mut tokens: &str;
 
@@ -26,7 +27,7 @@ macro_rules! lex {
                     "(" => "begin_print",
                     ")" => "end_print",
                     "{" => "begin",
-                    "}" => "print",
+                    "}" => "end",
 
                     "=" => "equal",
                     "+" => "equal",
@@ -96,8 +97,8 @@ macro_rules! lex {
                         "//" => "comment",
                         _ => {
                             if next_line == "{" {
-                                
-                            }
+                                func[x] == line_num;
+                            } else { println!("Warning: blank line on line {}", line_num);
                         },
                     }
                 }
