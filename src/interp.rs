@@ -48,7 +48,9 @@ macro_rules! parse {
 		
 		loop {
 			line = file[x];
-			let (token1, token2, token3, token4, token5, token6, token7) = line.split_at_mut(" ")
+			
+			try!(let (token1, token2, token3, token4, token5, token6, token7) = line.split_at_mut(" "));
+			
 			x = x + 1;
 			
 			match token1 {
@@ -80,6 +82,15 @@ macro_rules! parse {
 }
 
 pub fn interp() {
+	// init
+	let mut err = ERRORS {
+		MEM_OVERFLOW_ERR =
+		STRAY_CHAR_ERR =
+		THREAD_ERR =
+		TYPE_ERR = 
+	}
+	
+	// begin code
 	init();
 	parse!(FILE, PATH);
 	
