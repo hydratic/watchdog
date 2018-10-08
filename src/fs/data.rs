@@ -7,7 +7,9 @@ use volatile::Volatile;
 use volatile::ReadWrite;
 
 mod crypto;
+mod compress;
 mod initrd;
+mod pathfinder;
 
 // ** TYPES ** 
 type read_type_t = u32;
@@ -65,5 +67,8 @@ pub struct dirent {
 pub fn read_fs(node: fs_node, offset: u32, size: u32, buffer: u8) {
     if read != 0 {
         let ret = read(node, offset, size, buffer);
+        let txt = uncompress!(ret);
     } else { break; }
+    
+    result!(txt);
 }
