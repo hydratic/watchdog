@@ -1,11 +1,12 @@
 // mod.rs
-// provides calls into the i217 driver
+// provides calls into the network drivers
 // 
 // TODO:
 // all
 
 #![no_std]
 
+// ** Intel i217 **
 extern {
   // ** MMIOUTILS **
   pub fn MMIOUtils::read8(p_address: u64) -> Volatile<u8>;
@@ -21,4 +22,10 @@ extern {
   // ** PORTS **
   pub fn Portd::outportb(p_port: u16, p_data: u8);
   // TODO
+}
+
+// ** AMD PCNET **
+// TODO
+extern {
+  
 }
