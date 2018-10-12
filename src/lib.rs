@@ -5,7 +5,6 @@ extern crate bytecount;
 extern crate core as std;
 extern crate cpuio;
 extern crate hashmap_core;
-extern crate libc;
 extern crate libm;
 extern crate memadvise;
 extern crate raw-cpuid;
@@ -13,13 +12,12 @@ extern crate spin;
 extern crate ux;
 extern crate volatile;
 
-// watchdog lang
-pub mod interp;
-pub mod lex;
-
 // others
 pub mod fs;
 pub mod raw;
+pub mod mem;
+pub mod net;
+pub mod vga;
 
 #[cfg(test)]
 pub mod test;
@@ -49,7 +47,4 @@ pub fn os() {
 	
 	// thread 2
 	thread!(2, INTERP_ADDRESS, "background", "watchdog");
-	
-	// thread 3
-	thread!(2, INTERP_ADDRESS, "foreground", "shell.wd");
 }
