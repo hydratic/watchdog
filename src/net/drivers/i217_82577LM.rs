@@ -4,11 +4,14 @@ extern crate volatile;
 
 use volatile::Volatile;
 
+extern {
+    
+}
+
 pub const INTEL_VEND: Volatile<u32> = 0x8086  // Vendor ID for Intel 
 pub const E1000_DEV: Volatile<u32> = 0x100E;  // Device ID for the e1000 Qemu, Bochs, and VirtualBox emmulated NICs
 pub const E1000_I217: Volatile<u32> = 0x153A;  // Device ID for Intel I217
 pub const E1000_82577LM: Volatile<u32> = 0x10EA;  // Device ID for Intel 82577LM
- 
  
 // I have gathered those from different Hobby online operating systems instead of getting them one by one from the manual
  
@@ -62,36 +65,56 @@ pub const RCTL_PMCF: u32 = (1 << 23);   // Pass MAC Control Frames
 pub const RCTL_SECRC: u32 = (1 << 26);   // Strip Ethernet CRC
  
 // Buffer Sizes
-pub const RCTL_BSIZE_256                  (3 << 16)
-pub const RCTL_BSIZE_512                  (2 << 16)
-pub const RCTL_BSIZE_1024: u32 = (1 << 16)
-pub const RCTL_BSIZE_2048: u32 = (0 << 16)
-pub const RCTL_BSIZE_4096: u32 = ((3 << 16) | (1 << 25))
-pub const RCTL_BSIZE_8192: u32 = ((2 << 16) | (1 << 25))
-pub const RCTL_BSIZE_16384: u32 = ((1 << 16) | (1 << 25))
- 
+pub const RCTL_BSIZE_256: u32 = (3 << 16);
+pub const RCTL_BSIZE_512: u32 = (2 << 16);
+pub const RCTL_BSIZE_1024: u32 = (1 << 16);
+pub const RCTL_BSIZE_2048: u32 = (0 << 16);
+pub const RCTL_BSIZE_4096: u32 = ((3 << 16) | (1 << 25));
+pub const RCTL_BSIZE_8192: u32 = ((2 << 16) | (1 << 25));
+pub const RCTL_BSIZE_16384: u32 = ((1 << 16) | (1 << 25));
  
 // Transmit Command
  
-pub const CMD_EOP: u32 = (1 << 0)    // End of Packet
-pub const CMD_IFCS: u32 = (1 << 1)    // Insert FCS
-pub const CMD_IC: u32 = (1 << 2)    // Insert Checksum
-pub const CMD_RS: u32 = (1 << 3)    // Report Status
-pub const CMD_RPS: u32 = (1 << 4)    // Report Packet Sent
-pub const CMD_VLE: u32 = (1 << 6)    // VLAN Packet Enable
-pub const CMD_IDE: u32 = (1 << 7)    // Interrupt Delay Enable
- 
+pub const CMD_EOP: u32 = (1 << 0);    // End of Packet
+pub const CMD_IFCS: u32 = (1 << 1);    // Insert FCS
+pub const CMD_IC: u32 = (1 << 2);    // Insert Checksum
+pub const CMD_RS: u32 = (1 << 3);    // Report Status
+pub const CMD_RPS: u32 = (1 << 4);    // Report Packet Sent
+pub const CMD_VLE: u32 = (1 << 6);    // VLAN Packet Enable
+pub const CMD_IDE: u32 = (1 << 7);    // Interrupt Delay Enable
  
 // TCTL Register
  
-pub const TCTL_EN                         (1 << 1)    // Transmit Enable
-pub const TCTL_PSP                        (1 << 3)    // Pad Short Packets
-pub const TCTL_CT_SHIFT                   4           // Collision Threshold
-pub const TCTL_COLD_SHIFT                 12          // Collision Distance
-pub const TCTL_SWXOFF                     (1 << 22)   // Software XOFF Transmission
-pub const TCTL_RTLC                       (1 << 24)   // Re-transmit on Late Collision
+pub const TCTL_EN: u32 = (1 << 1);    // Transmit Enable
+pub const TCTL_PSP: u32 = (1 << 3);    // Pad Short Packets
+pub const TCTL_CT_SHIFT: u32 = 4;           // Collision Threshold
+pub const TCTL_COLD_SHIFT: u32 = 12;          // Collision Distance
+pub const TCTL_SWXOFF: u32 = (1 << 22);   // Software XOFF Transmission
+pub const TCTL_RTLCL: u32 = (1 << 24);   // Re-transmit on Late Collision
  
-pub const TSTA_DD                         (1 << 0)    // Descriptor Done
-pub const TSTA_EC                         (1 << 1)    // Excess Collisions
-pub const TSTA_LC                         (1 << 2)    // Late Collision
-pub const LSTA_TU                         (1 << 3)    // Transmit Underrun
+pub const TSTA_DD: u32 = (1 << 0);    // Descriptor Done
+pub const TSTA_EC: u32 = (1 << 1);    // Excess Collisions
+pub const TSTA_LC: u32 = (1 << 2);    // Late Collision
+pub const LSTA_TU: u32 = (1 << 3);    // Transmit Underrun
+
+pub const E1000_NUM_RX_DESC: i8 = 32;
+pub const E1000_NUM_TX_DESC: i3 = 8;
+
+pub struct e1000_rx_desc {
+    addr: Volatile<u64>,
+    length: Volatile<u16>,
+    checksum: Volatile<u16>,
+    status: Volatile<u8>,
+    errors: Volatile<u8>,
+    special: Volatile<u16>,
+}
+
+pub struct e1000_tx_desc {
+    addr: Volatile<u64>,
+    length: Volatile<u16>,
+    cso: Volatile<u8>,
+    cmd: Volatile<u8>,
+    status: Volatile<u8>,
+    css: Volatile<u8>,
+    special: Volatile<u8>,
+}
