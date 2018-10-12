@@ -1,11 +1,35 @@
 #![no_std]
 
+extern crate ux;
 extern crate volatile;
 
 use volatile::Volatile;
 
+mod e1000;
+
+// TODO:
+// Test
+// Add C-style types in arguments
 extern {
+    pub fn MMIOUtils::read8(p_address: u64) -> Volatile<u8>;
+    pub fn MMIOUtils::read16(p_address: u64) -> Volatile<u16>;
+    pub fn MMIOUtils::read32(p_address: u64) -> Volatile<u32>;
+    pub fn MMIOUtils::read64(p_address: u64) -> Volatile<u64>;
     
+    pub fn MMIOUtils::write8(p_address: u64) -> Volatile<u8>;
+    pub fn MMIOUtils::wrtie16(p_address: u64) -> Volatile<u16>;
+    pub fn MMIOUtils::write32(p_address: u64) -> Volatile<u32>;
+    pub fn MMIOUtils::write64(p_address: u64) -> Volatile<u64>;
+    
+    pub fn Ports::outportb(p_port: u16, p_data: u8);
+    pub fn Ports::outportw(p_port: u16, p_data: u16);
+    pub fn Ports::outportl(p_port: u16, p_data: u32);
+    pub fn Ports::inportb(p_port: u16);
+    pub fn Ports::inportw(p_port: u16);
+    pub fn Ports::inportl(p_port: u16);
+    
+    pub fn E1000::readCommand(p_address: u16);
+    pub fn E1000::readMACAddress() -> bool;
 }
 
 pub const INTEL_VEND: Volatile<u32> = 0x8086  // Vendor ID for Intel 
