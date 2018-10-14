@@ -1,3 +1,4 @@
+#![feature(const_fn)]
 #![allow(unused_macros)]
 #![allow(dead_code)]
 #![no_std]
@@ -17,17 +18,21 @@ extern crate volatile;
 use spin::Mutex;
 
 // others
-pub mod fs;
+#[macro_use] pub mod fs;
 pub mod raw;
-pub mod mem;
+#[macro_use] pub mod mem;
 pub mod net;
-pub mod vga;
+#[macro_use] pub mod vga;
 
 #[cfg(test)]
 pub mod test;
 
 static PICS: Mutex<ChainedPics> =
     Mutex::new(unsafe { ChainedPics::new(0x20, 0x28) });
+
+static KEYBOARD: Mutex<Port<u8>> = Mutex::new(unsafe {
+    Port::new(0x60)
+});
 
 pub struct ERROR {
 	NO_INTERP: i2,
@@ -37,9 +42,7 @@ pub struct ERROR {
 }
 
 // TODO: VM load testing
-pub fn os() {
-	// TODO: PIC and CPUIO
-	
+pub fn os() {	
 	// INIT ERROR FINDING
 	let mut err = ERROR {
 		NO_INTERP = 0;
