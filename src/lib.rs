@@ -1,3 +1,5 @@
+#![allow(unused_macros)]
+#![allow(dead_code)]
 #![no_std]
 
 extern crate average;
