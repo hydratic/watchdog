@@ -12,6 +12,8 @@ extern crate spin;
 extern crate ux;
 extern crate volatile;
 
+use spin::Mutex;
+
 // others
 pub mod fs;
 pub mod raw;
@@ -21,6 +23,9 @@ pub mod vga;
 
 #[cfg(test)]
 pub mod test;
+
+static PICS: Mutex<ChainedPics> =
+    Mutex::new(unsafe { ChainedPics::new(0x20, 0x28) });
 
 pub struct ERROR {
 	NO_INTERP: i2,
@@ -43,8 +48,10 @@ pub fn os() {
 	
 	// thread 1
 	thread!(1, FS_ADDRESS, "background", "fs");
-	thread!(1, MEM_ADDRESS, "background", "slab");
+	thread!(1, MEM_ADDRESS, "background", "mem");
 	
 	// thread 2
 	thread!(2, INTERP_ADDRESS, "background", "watchdog");
+	
+	loop { }
 }
