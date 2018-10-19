@@ -1,7 +1,9 @@
 //! Concurrent, atomic options.
 
+extern crate core;
+
 use std::{mem, ptr};
-use std::sync::atomic::{self, AtomicPtr};
+use core::sync::atomic::{self, AtomicPtr};
 use std::marker::PhantomData;
 
 use add_garbage_box;
