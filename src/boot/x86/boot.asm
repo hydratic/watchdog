@@ -1,5 +1,7 @@
 global start
 extern long_mode_start
+extern goto_vesa
+extern goto_v86
 
 section .text
 bits 32
