@@ -2,9 +2,10 @@
 
 extern crate core;
 
+// use core::{mem, ptr};
 use std::{mem, ptr};
 use core::sync::atomic::{self, AtomicPtr};
-use std::marker::PhantomData;
+use core::marker::PhantomData;
 
 use add_garbage_box;
 use guard::Guard;
