@@ -32,7 +32,7 @@ macro_rules! thread {
         
             // state
             if $state == "foreground" { priority = 1; }
-            is $state == "background" { priority = 0; }
+            if $state == "background" { priority = 0; }
         
             // address
             get_mem_map!();
@@ -55,17 +55,60 @@ macro_rules! thread {
             // if we have made it this far with no errors we can run the task
             match task_id {
 				"fs" => {
-				
+				    // fs functions
+                    mod fs;
+
+                    match $taskid {
+                        "tfs" => {
+                            break;
+                            // TODO
+                        }
+                    }
 				}
 				"security" => {
-				
+                    // security functions
+				    mod security;
+                    
+                    // TODO
+                    match $taskid {
+                    
+                    }
 				}
 				"shell" => {
-				
+                    // the user-level terminal
+				    mod shell;
+                    
+                    // TODO
+                    match $taskid {
+                        
+                    }
 				}
 				"watchdog" => {
-				
+                    // kernel services
+				    mod watchdog;
+
+                    match $taskid {
+                        "net_driv_init" => {
+                            watchdog::net::net_init($taskid, "scheduler");
+                        }
+                        "driv_init" => {
+                            watchdog::raw::init($taskid, "scheduler");
+                        }
+                        "ralloc" => {
+                            watchdog::ralloc::init($taskid, "scheduler");
+                        }
+                    }
 				}
+                "utils" => {
+                    // obvious enough
+                    mod utils;
+
+                    match $taskid {
+                        "rand" => {
+                            let out = utils::rand::Rand();
+                        }
+                    }
+                }
 				_ => {
 					os_task = false;
 				}
