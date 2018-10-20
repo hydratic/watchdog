@@ -4,7 +4,6 @@ extern crate volatile;
 
 use volatile::Volatile;
 
-mod ext4;
 mod memory;
 
 pub const SATA_SIG_ATA: u32 = 0x00000101;
