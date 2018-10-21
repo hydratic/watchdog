@@ -1,6 +1,5 @@
 global start
 extern long_mode_start
-extern goto_vesa
 extern goto_v86
 
 section .text
@@ -15,6 +14,37 @@ start:
 
     call set_up_page_tables
     call enable_paging
+
+    ; set 80x25 text mode so we're in a known state, and to set 8x16 font
+	mov ax,0003h
+	int 10h
+
+    ; set 80x50 text mode and 8x8 font
+	mov ax,1112h
+	xor bl,bl
+	int 10h
+
+    ; tell the BIOS what we've done
+	mov ax,0040h
+	mov ds,ax
+	mov es,ax
+
+	mov word [004Ah],80		; columns on screen
+
+	mov word [004Ch],80*50*2	; framebuffer size
+
+	mov cx,8
+	mov di,0050h
+	xor ax,ax
+	rep stosw			; cursor pos for 8 pages
+
+	mov word [0060h],0607h		; cursor shape
+
+	mov byte [0084h],49		; rows on screen, minus one
+
+	mov byte [0085h],8		; char height, in scan-lines
+
+    call rust_vesa
 
     ; load the 64-bit GDT
     lgdt [gdt64.pointer]
