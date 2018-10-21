@@ -21,6 +21,8 @@ pub const PITCH: u32 = 0;
 pub const BPP: i32 = 0;
 pub const FRAMEBUFFER: u32 = 0;
 
+pub const SIZE: u32 = 80 * 50;
+
 // position
 pub const X: i8 = 1;
 pub const Y: i8 = 1;
