@@ -44,8 +44,6 @@ start:
 
 	mov byte [0085h],8		; char height, in scan-lines
 
-    call rust_vesa
-
     ; load the 64-bit GDT
     lgdt [gdt64.pointer]
 
