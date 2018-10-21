@@ -9,8 +9,6 @@ extern crate hashmap_core;
 #[macro_rules] mod context;
 #[macro_rules] mod thread;
 
-pub const ALGO: i64 = PRI / TIME;
-
 // required
 mod mem;
 
