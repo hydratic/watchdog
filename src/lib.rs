@@ -47,7 +47,6 @@ pub struct ERROR {
 // TODO: VM load testing
 #[no_mangle]
 pub fn os() {	
-	unsafe { PICS.lock().initialize() };
     x86_64::instructions::interrupts::enable();
 	
 	// INIT ERROR FINDING
