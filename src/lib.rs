@@ -5,27 +5,30 @@
 
 extern crate average;
 extern crate bytecount;
+extern crate cpuio as io;
 extern crate core as std;
-extern crate cpuio;
 extern crate hashmap_core;
 extern crate libm;
 extern crate memadvise;
 extern crate raw-cpuid;
 extern crate spin;
 extern crate ux;
+#[cfg(test)] extern crate watchdog_test;
 extern crate volatile;
+extern crate x86_64;
 
+use x86_64::instructions::port::Port;
 use spin::Mutex;
 
-// others
+pub mod elf;
 #[macro_use] pub mod fs;
-pub mod raw;
+#[macro_use] pub mod raw;
 #[macro_use] pub mod mem;
 pub mod net;
 #[macro_use] pub mod vga;
-
-#[cfg(test)]
-pub mod test;
+pub mod utils;
+pub mod interrupts;
+pub mod sshell;
 
 static PICS: Mutex<ChainedPics> =
     Mutex::new(unsafe { ChainedPics::new(0x20, 0x28) });
@@ -42,7 +45,11 @@ pub struct ERROR {
 }
 
 // TODO: VM load testing
+#[no_mangle]
 pub fn os() {	
+	unsafe { PICS.lock().initialize() };
+    x86_64::instructions::interrupts::enable();
+	
 	// INIT ERROR FINDING
 	let mut err = ERROR {
 		NO_INTERP = 0;
@@ -51,12 +58,6 @@ pub fn os() {
 		PATHFINDER_DOWN_ERR = 0;
 	}
 	
-	// thread 1
-	thread!(1, FS_ADDRESS, "background", "fs");
-	thread!(1, MEM_ADDRESS, "background", "mem");
-	
-	// thread 2
-	thread!(2, INTERP_ADDRESS, "background", "watchdog");
-	
-	loop { }
+	// INIT SHELL
+	sshell();
 }
