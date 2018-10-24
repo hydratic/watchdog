@@ -2,4 +2,5 @@
 
 In this folder, code that is used for testing purposes is held. 
 
- - A test memory allocator is included to debug the real allocator
+ - `mem` - A test memory allocator is included to debug the real allocator
+ - `kernel` - Phil Opperman's Rust OS for testing different random bits of code
