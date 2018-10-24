@@ -2,7 +2,9 @@
  
 extern crate spin;
 extern crate watchdog_raw;
- 
+extern crate tfs_core;
+// extern crate watchdog_ralloc; 
+
 static PICS: Mutex<ChainedPics> =
     Mutex::new(unsafe { ChainedPics::new(0x20, 0x28) });
 
@@ -11,8 +13,10 @@ static KEYBOARD: Mutex<Port<u8>> = Mutex::new(unsafe {
 });
  
 pub fn sshell() {
-	PICS.lock().initialize()
-
+	if PIC_DEVICE == "8529_PIC" {
+		PICS.lock().initialize()
+	}
+		
   	let mut space: i2;
 	let mut input: String = "";
 	space = 0;
@@ -20,17 +24,20 @@ pub fn sshell() {
 	let letter = io_driv::ps2_keyboard::match_code(scancode);
 	if letter == "<ENTER>" {
 		match cmd {
-			"cd" => {
-			
-			}
-			"mkdir" => {
-
-			}
-			"rmdir" => {
-			
-			}
 			_ => {
 				match cmd {
+					// ** FS FUNCTIONS **
+					"cd" => {
+						if multi_cmd == 0 { print!("CD is not a standalone command.");
+						if multi_cmd == 0 { break; }
+					}
+					"mkdir" => {
+						// call TFS to make a directory
+					}
+					"rmdir" => {
+						// call TFS to remove a directory
+					}
+					
 					"sudo" => {
 						if SUDO == 1 {
 							if multi_cmd == 0 { print!("SUDO is not a standalone command.");
@@ -50,6 +57,8 @@ pub fn sshell() {
 	} else if stringable == true {
 		in.push_str(letter);
 	}
-		
-	PICS.lock().notify_end_of_interrupt(interrupt_id);
+	
+	if PIC_DEVICE == "8529_PIC" {
+		PICS.lock().notify_end_of_interrupt(interrupt_id);
+	}
 }
