@@ -32,7 +32,12 @@ pub fn sshell() {
 			_ => {
 				match cmd {
 					"sudo" => {
-
+						if SUDO == 1 {
+							if multi_cmd == 0 { print!("SUDO is not a standalone command.");
+							if multi_cmd == 0 { break; }
+						} else {
+							print!("Superuser access not available!"); 
+						}
 					}
 					_ => {
 						print!("Unrecognized command.");
