@@ -42,7 +42,7 @@ static KEYBOARD: Mutex<Port<u8>> = Mutex::new(unsafe {
 #[no_mangle]
 pub fn os() {
     x86_64::instructions::interrupts::enable();
-	ralloc::set_oom_handler(my_handler);
+	ralloc::set_oom_handler(handler);
 	
 	// INIT SHELL
 	sshell();
