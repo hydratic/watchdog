@@ -3,7 +3,11 @@
 extern crate spin;
 extern crate watchdog_raw;
 extern crate tfs_core;
-// extern crate watchdog_ralloc; 
+// extern crate watchdog_ralloc;
+extern crate xpkg_backend as xpkg;
+extern crate ux;
+
+pub const PROGRAMS: i64 = xpkg::get_pkg_num();
 
 static PICS: Mutex<ChainedPics> =
     Mutex::new(unsafe { ChainedPics::new(0x20, 0x28) });
@@ -13,15 +17,20 @@ static KEYBOARD: Mutex<Port<u8>> = Mutex::new(unsafe {
 });
  
 pub fn sshell() {
+  	let mut space: i2;
+	let package_list: Vec<String> = xpkg::get_pkg_names();
+	let mut input: String = "";
+	let mut multi_command: i2 = 0;
+	
 	if PIC_DEVICE == "8529_PIC" {
 		PICS.lock().initialize()
 	}
 		
-  	let mut space: i2;
-	let mut input: String = "";
 	space = 0;
+	
 	let scancode = KEYBOARD.lock().read();
 	let letter = io_driv::ps2_keyboard::match_code(scancode);
+	
 	if letter == "<ENTER>" {
 		match cmd {
 			_ => {
@@ -47,6 +56,9 @@ pub fn sshell() {
 						}
 					}
 					_ => {
+						for x in 0..programs {
+							
+						}
 						print!("Unrecognized command.");
 					}
 				}
@@ -54,6 +66,7 @@ pub fn sshell() {
 		}
 	} else if letter == "<SPACE>" {
 		cmd.push_str(input);
+		multi_cmd = 1;
 	} else if stringable == true {
 		in.push_str(letter);
 	}
