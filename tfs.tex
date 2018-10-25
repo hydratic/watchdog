@@ -1,0 +1,365 @@
+\documentclass[11pt,a4paper]{report}
+\usepackage{amsmath,amsfonts,amssymb,hyperref,svg,lmodern}
+
+\title{
+    \centering{\includesvg{../icon}}\\
+    Specification of the On-Disk Format of The TFS File System
+}
+\author{Ticki}
+\date{\today}
+
+% Constants
+\newcommand{\clustersize}{512 }
+\newcommand{\minimumsectorsize}{512 }
+\newcommand{\versionnumber}{0 }
+
+\begin{document}
+    \maketitle
+
+    \begin{abstract}
+        We give a complete specification of the on-disk representation of the
+        TFS file system. Certain implementation details are covered.
+    \end{abstract}
+
+    \tableofcontents
+
+    \chapter{Introduction}
+    This specification should detail the TFS file system such that it can be
+    implemented without ambiguity. As such, it should bridge various
+    implementation under one united on-disk format.
+
+    It will not, however, provide the algorithms used to manipulate this format
+    efficiently. It will only specify it's static, disk format.
+
+    \section{Assumptions and guarantees}
+    \label{assumptions_guarantees}
+        TFS provides following guarantees:
+
+        \begin{itemize}
+            \item Unless data corruption happens, the disk should never be in
+                an inconsistent state\footnote{TFS achieves this without using
+                journaling or a transactional model.}. Poweroff and the alike
+                should not affect the system such that it enters an invalid or
+                inconsistent state.
+        \end{itemize}
+
+        Provided that following premises hold:
+
+        \begin{itemize}
+            \item Any sector (assumed to be a power of two of at least
+                \minimumsectorsize bytes) can be read and written atomically,
+                i.e.\ it is never partially written, and interrupting the write
+                will never render the disk in a state in which it not already
+                is written or retaining the old data.
+        \end{itemize}
+
+        Data corruption can break these guarantees or premises, and TFS
+        encompasses certain measures against such corruption, but they are
+        strictly speaking heuristic, like any error detection and correction
+        method, as the damage could be across all the disks.
+
+    \chapter{Disk header}
+    \label{header}
+    The first \clustersize bytes are reserved for the ``disk header'' which
+    contains unencrypted configuration and information about the state.
+
+    \section{Introducer (byte 0-16)}
+        \subsection{Magic number (byte 0-8)}
+        The first 8 bytes are reserved for a magic number, which is used for
+        determining if it does indeed store TFS\@. It is specified to store the
+        string ``\texttt{TFS fmt }'' (note the space) in ASCII.
+
+        If the format does only partially conform to this specification, the
+        string ``\texttt{\textasciitilde TFS fmt}'' is used instead. Partially
+        compatible implementations may use checksum algorithm, vdevs,
+        compression algorithms, and so on not specified in this document, but
+        they should abide the same format.
+
+        \subsection{Version number (byte 8-12)}
+        \label{header:versionnumber}
+        This field stores a version number, in little-endian. By this revision,
+        said number is \versionnumber.
+
+        Breaking changes will increment the higher half of this number.
+
+    \section{Identification (byte 16-32)}
+        \subsection{Unique ID (byte 16-32)}
+        \label{uid}
+        This is an 128-bit little-endian number, chosen at random. It should
+        never be shared with a third-party.
+
+    \section{Configuration (byte 32-48)}
+        \subsection{Checksum algorithm (byte 32-34)}
+        \label{config:checksum}
+        This field stores a number in little-endian defining checksum algorithm
+        in use.
+
+        \begin{description}
+            \item [$1$] The SeaHash algorithm as described
+                in~\ref{algorithm:seahash}
+            \item [$\geq 2^{15}$] Implementation defined.
+        \end{description}
+
+    \section{State (byte 48-64)}
+        \subsection{State flag (byte 48)}
+        \label{header:consistency}
+        This little-endian integer takes one of the following
+        values\footnote{The reason it takes two bytes instead of one is to be
+        able to detect errors.}:
+
+        \begin{description}
+            \item [$\texttt{00}_{16}$] Disk I/O stream was properly closed.
+            \item [$\texttt{01}_{16}$] Disk I/O stream was not properly
+                closed\footnote{This \emph{does not} make the state
+                inconsistent. It simply serves to warn the user that the last
+                writes might have been lost, e.g.\ the cache didn't flush.}
+            \item [$\texttt{02}_{16}$] The disk is in an inconsistent
+                state\footnote{This typically only happen if the user poweroffs
+                his or her computer while reformatting the disk.}
+        \end{description}
+
+        Any other value is considered invalid.
+
+    \section{Virtual device stack (byte 64-504)}
+        This stores the virtual device (``vdev'') configuration stack, in the
+        order in which the vdev transformations are applied.
+
+        It is a prefix-free code with each codeword starting with an 16-bit
+        little-endian label defining the type of the particular vdev.
+
+        The vdevs are specified in~\ref{vdev}.
+
+    \section{Integrity checking (byte 504-512)}
+        \subsection{Checksum (byte 504-512)}
+        This field stores a little-endian integer equal to the checksum of the
+        state block preceding the checksum itself, calculated by the algorithm
+        specified in~\ref{config:checksum}.
+
+    \chapter{Virtual devices}
+    \label{vdev}
+        \section{Terminator}
+        This vdev has label 0 and acts as the last applied vdev. No vdevs
+        follows.
+
+        \section{Mirror}
+        This vdev has label 1. It halfs the parent vdev and lets the higher
+        half mirror the lower. Any write to the disk transforms to two
+        identical writes into the lower and higher part respectively.
+
+        \section{SPECK encryption}
+        This vdev has label 2 and encrypts everything after the disk header
+        (\ref{header}) in the parent vdev with SPECK-128 (XEX mode) with
+        scrypt key stretching.
+
+        For details, refer to~\ref{algorithm:speck}.
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+        \section{Implementation defined}
+        This vdev has label $\texttt{ffff}_{16}$ and 8 bytes following, uniquely
+        identifying the type\footnote{It is strongly recommended that this
+        integer is chosen at random to avoid colliding with other
+        implementations.}. The behavior of this vdev and the number of bytes
+        following the label and sublevel is entirely left to the implementation
+        defined.
+
+    \chapter{State block}
+    \label{stateblock}
+    The first ``virtual sector'' (the sector following the disk header)
+    contains the state block as defined below.
+
+    \section{Integrity checking (0-8)}
+        \subsection{Checksum (byte 0-8)}
+        This field stores a little-endian integer equal to the checksum of the
+        state block following the checksum itself\footnote{This does not have
+        the self-validation problem since it is the top block, and silent
+        phantom writes won't affect the correctness of the state.}, calculated
+        by the algorithm specified in~\ref{config:checksum}.
+
+    \section{Configuration (byte 8-16)}
+        \subsection{Compression algorithm (byte 8-10)}
+        \label{config:compression}
+        This field stores a number in little-endian defining compression
+        algorithm in use.
+
+        \begin{description}
+            \item [$0$] No compression (identity function).
+            \item [$1$] The LZ4 compressor as described
+                in~\ref{algorithm:lz4}.
+            \item [$\geq 2^{15}$] Implementation defined.
+        \end{description}
+
+    \section{State (byte 16-48)}
+        \subsection{Super-page pointer (byte 16-32)}
+        This field stores some number (in little-endian), which takes values
+
+        \begin{description}
+            \item [$n = 0$]    super-page uninitialized.
+            \item [$n \neq 0$] $n$ is a pointer (\ref{cluster:page}) to the
+                superpage, defined in~\ref{fs:superpage}.
+        \end{description}
+
+        \subsection{Freelist head pointer (byte 32-40)}
+        \label{state:freelist_head}
+        This field stores a cluster pointer (as specified in~\ref{cluster:ptr})
+        to some metacluster, subject to the format specified
+        in~\ref{cluster:metacluster}.
+
+        \subsection{Checksum of the freelist head (byte 40-48)}
+        This field stores the checksum (in little-endian) of the freelist
+        head, by the algorithm specified in~\ref{config:checksum}.
+
+    \chapter{Cluster management}
+
+    \section{Clusters and pages}
+        The disk is divided into clusters of \clustersize bytes each.
+
+        \subsection{Cluster pointers}
+        \label{cluster:ptr}
+        Cluster pointers are written as 64-bit little-endian integers, and
+        enumerates the sectors, starting at the first non-disk header sector.
+        As such, the pointer 0 points to the state block (\ref{stateblock}) and
+        can thus be considered a trap value (null pointer).
+
+        \subsection{Pages}
+        \label{cluster:page}
+        A data cluster contain some number of \clustersize bytes blocks called
+        ``pages''.
+
+        A pointer to a page is exactly 128 bits wide (from more less
+        significant bits to more significant):
+
+        \begin{description}
+            \item [Cluster pointer] This is the cluster pointer in the format
+                described in~\ref{cluster:ptr}.
+            \item [Little-endian 32-bit page number] If this number is $2^{32}
+                - 1$, the page can be read directly from the cluster without
+                any specialized logic.  Otherwise, this is the offset (in
+                pages) into the decompressed cluster which is compressed by the
+                algorithm specified in~\ref{cluster:compression}.
+            \item [Little-endian 32-bit checksum] This is the 32 least
+                significant bits of the checksum of the page, by the algorithm
+                specified in~\ref{config:checksum}.
+        \end{description}
+
+        Allocation is done in implementation defined manner.
+
+        \subsection{Meta-cluster format}
+        \label{cluster:metacluster}
+        Metaclusters are a collection of other free clusters.
+
+        It starts with an 64-bit little-endian checksum of the next
+        metacluster. If no next metacluster exists, this integer is 0. This is
+        followed by a cluster pointer (\ref{cluster:ptr}) to the next
+        metacluster. Similarly, this is 0 if no next metacluster exists.
+
+        Following this, there is some number of cluster points to other free
+        clusters. If the metacluster is the top metacluster
+        (\ref{state:freelist_head}), the pointers up to the cluster counter
+        (\ref{state:freelist_head_counter}). Otherwise, all the pointers from
+        the first in this section up to the first null pointer must be free.
+
+        The checksum of a metacluster is calculated
+        through~\ref{config:checksum}.
+
+        \subsection{Allocation and deallocation}
+        The algorithm for allocation and deallocation is implementation
+        defined\footnote{It is generally done by inspecting the head of the
+        freelist before popping it, to see if it has a sister cluster,
+        where the page can be fit in. If it cannot, the freelist is popped.
+        The way such clusters are paired is up to the implementation.
+        Bijective maps are recommended for optimal performance.}.
+
+    \section{Compression}
+    \label{cluster:compression}
+        Data is compressed into fixed size blocks via the algorithm chosen
+        in~\ref{config:compression}, but special padding logic is used.
+
+        The compressed data might be padded with $\texttt{ff}_{16}$ and then
+        zeros until the desired length is obtained.
+
+    \chapter{Algorithms}
+
+    \section{Checksums}
+        \subsection{SeaHash}
+        \label{algorithm:seahash}
+        SeaHash's initial state is
+
+        \begin{align*}
+            a &= \texttt{16f11fe89b0d677c}_{16} \\
+            b &= \texttt{b480a793d8e6c86c}_{16} \\
+            c &= \texttt{6fe2e5aaf078ebc9}_{16} \\
+            d &= \texttt{14f994a4c5259381}_{16}
+        \end{align*}
+
+        The input is broken into 64-bit little-endian integers. If necessary,
+        the last block is padded with zeros to fit.
+
+        Call this integer $n$, then the updated state is
+
+        \begin{align*}
+            a' &= b \\
+            b' &= c \\
+            c' &= d \\
+            d' &= f(a \oplus n)
+        \end{align*}
+
+        with $f(n)$ defined by
+
+        \begin{align*}
+            p      &=      \texttt{6eed0e9da4d94a4f}_{16} \\
+            f_1(x) &\equiv px \pmod{2^{64}} \\
+            f_2(x) &=      x \oplus ((x \gg 32) \gg (x \gg 60)) \\
+            f(n)   &=      f_1(f_2(f_1(x))))
+        \end{align*}
+
+        The final hash value is then produced by
+
+        $$h = f(a \oplus b \oplus c \oplus d \oplus l) $$
+
+        where $l$ is the original length of the (unpadded) hashed buffer.
+
+    \section{Compression algorithms}
+        \subsection{LZ4}
+        \label{algorithm:lz4}
+        LZ4 compressed data is a series of blocks, subject to following format:
+
+        \begin{description}
+            \item [1 byte token] Call the higher 4 bits $t_1$ and the lower
+                $t_2$.
+            \item [$n_1$ 255s (skip if $t_1 \neq 15$)]
+            \item [1 byte (skip if $t_1 \neq 15$)] Call this value $e_1$.
+            \item [$t_1 + 256n_1 + e_1$ bytes] This (called the literals
+                section) is copied directly to the output buffer without any
+                pre processing.
+            \item [16-bit little-endian integer] Call this value $o$.
+            \item [$n_2$ 255s (skip if $t_2 \neq 15$)]
+            \item [1 byte (skip if $t_2 \neq 15$)] Call this value $e_1$.
+        \end{description}
+
+        After the literals section has been copied to the output buffer, assume
+        that the output buffer is now of length $l$ bytes. Then, the bytes from
+        $l - O$ to $l - O + t_2 + 256n_2 + e_2$ in the decoded buffer is
+        appended to the output stream itself.
+
+        The last block in a stream can be ended after literals section, such
+        that no duplicates part is needed.
+
+    \section{Cryptography}
+        \subsection{SPECK}
+        \label{algorithm:speck}
+        This algorithm uses the 128 block size version of the SPECK
+        cipher\cite{speck} with the key generated by \cite{scrypt} with $N =
+        2^{20}$, $r = 8$, and $p = 1$. \ref{uid} is used as the salt to scrypt.
+
+        The cipher is used in the XEX mode of operation\cite{xex}.
+
+    \begin{thebibliography}{9}
+        \bibitem{speck}
+        R. Beaulieu, D. Shors, J. Smith, The SIMON and SPECK lightweight block ciphers
+        \bibitem{scrypt}
+        C. Percival, Stronger Key Derivation Via Sequential Memory-Hard Functions
+        \bibitem{xex}
+        P. Rogaway, Efficient Instantiations of Tweakable Blockciphers and Refinements to Modes OCB and PMAC
+    \end{thebibliography}
+\end{document}
