@@ -33,6 +33,14 @@ pub fn sshell() {
 	
 	if letter == "<ENTER>" {
 		match cmd {
+			"fsociety" => {
+				println!("        d88888b .d8888.  .d88b.   .o88b. d888888b d88888b d888888b db    db
+        88'     88'  YP .8P  Y8. d8P  Y8   `88'   88         88    `8b  d8'
+        88ooo   `8bo.   88    88 8P         88    88ooooo    88     `8bd8'
+        88        `Y8b. 88    88 8b         88    88         88       88
+        88      db   8D `8b  d8' Y8b  d8   .88.   88.        88       88
+        YP      `8888Y'  `Y88P'   `Y88P' Y888888P Y88888P    YP       YP");
+			}
 			_ => {
 				match cmd {
 					// ** FS FUNCTIONS **
