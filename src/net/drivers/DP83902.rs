@@ -18,5 +18,13 @@ pub const CURRENT: Volatile<u16> = 307h;
 pub const REMOTESTARTADDRESS0: Volatile<u16> = 308h;
 pub const CRDMA0: Volatile<u16> = 308h;
 pub const REMOTESTARTADDRESS1: Volatile<u16> = 309h;
-pub const CRDMA1L: Volatile<u16> = 309h;
-pub const REMOTEBYTECOUNT: Volatile<u16> = 300ah;
+pub const CRDMA1: Volatile<u16> = 309h;
+pub const REMOTEBYTECOUNT0: Volatile<u16> = 300ah;
+pub const REMOTEBYTECOUNT1: Volatile<u16> = 300bh;
+pub const RECEIVESTATUS: Volatile<u16> = 300ch;
+pub const RECEIVECONFIGURATION: Volatile<u16> = 300ch;
+pub const TRANSMT
+
+pub fn send_packet(addr: &str) {
+  
+}
