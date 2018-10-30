@@ -1,11 +1,13 @@
 #![no_std]
  
 extern crate spin;
-extern crate watchdog_raw;
-extern crate tfs_core;
-// extern crate watchdog_ralloc;
-extern crate xpkg_backend as xpkg;
 extern crate ux;
+
+extern crate watchdog_fs as fs;
+extern crate xpkg_backend as xpkg;
+extern crate watchdog_raw as raw;
+extern crate watchdog_ralloc as ralloc;
+extern crate watchdog_crypto as crypto; 
 
 pub const PROGRAMS: i64 = xpkg::get_pkg_num();
 
