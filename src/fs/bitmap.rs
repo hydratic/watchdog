@@ -24,8 +24,9 @@ pub struct Block_ {
 
 impl Block__ for Block_ {
     type Block = Block_;
-
-
+    
+    pub fn new_block(size: i8, location: Vec<u64>) { bitmap_table!(4, size, location); }
+    pub fn remove_block(&self, block: &Block) { bitmap_table!(5, block); }
 }
 
 #[macro_export]
@@ -47,7 +48,7 @@ macro_rules! bitmap_table {
             bitmap_table.insert(blank, 0);
             const HASHMAP_CREATED: bool = true;
         } else if $bytpe == 2 { // add an inode to the bitmap
-            
+            try!(bitmap_table.insert($inode, $pos));
         } else if $btype == 3 { // remove an inode from the bitmap
             let x = bitmap_table[0];
             let y = bitmap_table[0];
@@ -79,9 +80,10 @@ macro_rules! bitmap_table {
                     location = get_next_unused_spot();
                 };
             }
+        } else if $btype == 5 {
+
         } else if $btype == 9 { // create local hashmap
             if HASHMAP_CREATED = true { let bitmap_table_2: HashMap<>
         }    
-    }}
-    ;
+    }};
 }
