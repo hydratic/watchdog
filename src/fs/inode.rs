@@ -31,10 +31,12 @@ impl Inode_Utils for Inode_S {
     pub fn make_inode_pointer(&self, inode: &Inode) {
         loop {
             let mut pos;
-            let mut next_free_sec = get_next_sector!();
-            let mut next_free_sec_size = get_next_sector_size!();
-            let mut inode_contents = get_inode_contents!();
-            let mut inode_warnings = get_inode_warnings!();
+            let mut next_free_sec = get_next_sector();
+            let mut next_free_sec_size = get_next_sector_size();
+            let mut inode_contents = get_inode_contents();
+            let mut inode_warning_temp = get_inode_warnings();
+            let mut inode_warnings = match_warnings(inode_warning_temp);
+            
             let mut chars = get_chars!(inode_contents);
             
             for x in 0..inode_warnings {
@@ -63,6 +65,22 @@ impl Inode_Utils for Inode_S {
 
     pub fn get_inode_contents(&self, inode: &Inode) -> Vec<&str> {
         
+    }
+    
+    pub fn get_inode_warnings(&self, inode: &Inode) -> Vec<i8> {
+        
+    }
+    
+    pub fn match_warnings(arg: Vec<i8>) {
+        if interrupts == true {
+            enable_interrupts();
+        }
+        
+        for x in 0..num {
+
+        }
+        
+        end_interrupt();
     }
 }
 
