@@ -1,3 +1,9 @@
+#![no_std]
+
+extern crate volatile;
+
+use volatile::Volatile;
+
 extern {
 	pub fn probe_port(abar: HBA_MEM);
 	pub fn check_type(port: HBA_PORT);
