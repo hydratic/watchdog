@@ -1,9 +1,16 @@
+// cpuid.rs
+// provides a macro, cpuid!(), that returns info about the processor.
+//
+// requires #[macro_use]
+
 #![no_std]
 
 extern crate raw-cpuid;
 
 // TODO:
 // Rest
+
+#[macro_export]
 macro_rules! cpuid {
     ($arch:expr) => {{
         if $arch == x86 {
