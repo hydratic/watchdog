@@ -13,6 +13,10 @@ pub struct _Thread {
 	priority: i8,
 }
 
+impl __Thread for _Thread {
+	type Thread = _Thread;
+}
+
 pub fn thread_spawn(id: i8, thread_local_mem: i8, Task: &str, prioirty: i8) -> Thread {
 	let used_ids = get_used_ids(1);
 	let used_id_num = get_used_ids(2);
