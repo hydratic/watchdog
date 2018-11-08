@@ -21,6 +21,7 @@ extern crate x86_64;
 use x86_64::instructions::port::Port;
 use spin::Mutex;
 
+pub mod always_io;
 pub mod elf;
 #[macro_use] pub mod fs;
 #[macro_use] pub mod mem;
@@ -30,6 +31,7 @@ pub mod utils;
 pub mod interrupts;
 pub mod sshell;
 pub mod oom;
+// pub mod thread;
 
 static PICS: Mutex<ChainedPics> =
     Mutex::new(unsafe { ChainedPics::new(0x20, 0x28) });
