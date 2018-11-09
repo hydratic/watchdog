@@ -5,7 +5,7 @@ extern crate ux;
 
 mod thread;
 
-#[macro_rules]
+#[macro_export]
 macro_rules! thread_stack {
 	($init:expr, $id:expr, $permissions:expr) => {{
 		if $init == 0 {
