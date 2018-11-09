@@ -1,6 +1,13 @@
+// utils.rs
+// random snippets of code that are required by the kernel for various reasons
+//
+// Table of Contents:
+//
+// rand
+
 #![no_std]
 
-mod mem;
+extern crate watchdog_ralloc as ralloc;
 
 const KX: u32 = 123456789;
 const KY: u32 = 362436069;
