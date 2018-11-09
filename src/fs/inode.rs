@@ -1,3 +1,12 @@
+// inode.rs
+// provides an interface to kernel level inode allocation.
+// those inodes are then copied from an in memory inode map to the hard drive by
+// drive.rs.
+//
+// TODO: Finish
+//       Review Code
+//       Automatically encrypt + compress inode names and contents
+
 #![no_std]
 
 extern crate atomic_hashmap;
