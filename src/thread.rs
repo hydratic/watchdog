@@ -1,3 +1,10 @@
+// thread.rs
+// the glue between the thread stack and the cpu scheduler that
+// provides kernel-level threading.
+//
+// TODO: Finish
+//		 Allocate memory
+
 #![no_std]
 
 extern crate watchdog_raw as raw;
