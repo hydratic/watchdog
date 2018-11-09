@@ -1,3 +1,7 @@
+// always_io.rs
+// provides the kernel with io that never stops
+// used for kernel-level keybinds
+
 #![no_std]
 
 extern crate cpuio;
