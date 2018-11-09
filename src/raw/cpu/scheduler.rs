@@ -4,13 +4,13 @@
 #![no_std]
 
 extern crate atomic_hashmap;
-extern crate watchdog_thread__spawn;
 extern crate watchdog_ralloc as ralloc;
 
-// local
+mod thread;
 #[macro_rules] mod context;
 mod thread_stack;
 
+#[macro_export]
 macro_rules! init_scheduler {
 	($id:expr, $msg:expr, $pri:expr, $cpus:expr) => {{
 		let mut err: i2 = 1;
@@ -19,6 +19,7 @@ macro_rules! init_scheduler {
             let mut cpu_stack = HashMap::New();
             let mut cpu_time_stack = HashMap::New();
 			let mut cpu_thread_stack: = HashMap::New();
+			let mut
             let mut hashmap_started = true;
 			let mut items;
             err = 0;
