@@ -1,3 +1,8 @@
+// serpent.rs
+// provides convient functions, encrypt and decrypt, for security reasons.
+//
+// TODO: Finish porting to Rust
+
 #![no_std]
 
 extern crate libc;
