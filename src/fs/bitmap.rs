@@ -1,3 +1,11 @@
+// bitmap.rs
+// provides an interface to kernel level block allocation, used by drive.rs
+// to find available sectors for storing data.
+//
+// TODO: Finish
+//       Encrypt and compress block locations
+//       Implement checks for permission
+
 #![no_std]
 
 extern crate atomic_hashmap;
