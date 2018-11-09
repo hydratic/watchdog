@@ -1,10 +1,25 @@
+// elf.rs
+// provides a function that allows the kernel to run ELF executables that are at the specified location
+//
+// TODO: Error Handling (see notes)
+//       Permission checks + check for superuser
+//       Memory allocation
+//
+// Notes:
+// Right now, it is unknown what will happen if a ELF file is given to run that does not exist.
+// Logically, the kernel will either hang or panic. We need to make sure that when the program
+// has an error it should print that it has encountered an error and it should context switch
+// back to the shell handler.
+
+#[feature(asm)]
 #[warn(unused_imports)]
 #![no_std]
 
-#[macro_use]
-mod vga;
-mod fs;
-mod memory;
+extern crate watchdog_fs as fs;
+extern crate watchdog_raw as raw;
+extern crate watchdog_ralloc as ralloc;
+
+use raw::vga;
 
 const ELFIdent: i16 = 16;
 
