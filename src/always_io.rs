@@ -8,6 +8,7 @@ extern crate cpuio;
 extern crate watchdog_raw as raw;
 extern crate ux;
 
+use raw::cpu;
 use raw::header;
 use raw::ps2_keyboard;
 
@@ -18,7 +19,7 @@ pub fn init_io() -> char {
 	if pic == 1 {
 	
 	let character == get_io!();
-	return character;
+	thread::thread__local_stroage(character, IO_THREAD_ID);
 	
 	if pic == 1 {
 }
