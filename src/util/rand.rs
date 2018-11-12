@@ -1,9 +1,5 @@
-// utils.rs
-// random snippets of code that are required by the kernel for various reasons
-//
-// Table of Contents:
-//
-// rand
+// rand.rs
+// rand but no_std
 
 #![no_std]
 
