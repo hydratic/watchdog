@@ -22,6 +22,7 @@ use watchdog_raw::query;
 mod ahci;
 mod atapi;
 mod inode;
+mod disk;
 
 pub struct Block_ {
     size: i32,
@@ -56,7 +57,16 @@ macro_rules! bitmap_table {
             bitmap_table.insert(blank, 0);
             const HASHMAP_CREATED: bool = true;
         } else if $bytpe == 2 { // add an inode to the bitmap
-            try!(bitmap_table.insert($inode, $pos));
+            // TODO: Document this loop
+            loop {
+                bitmap_table.insert($inode, $pos);
+                let inserted = true;
+                break;
+            }
+            
+            if inserted == true {
+                let res = write_sec($pos, $inode);
+            }
         } else if $btype == 3 { // remove an inode from the bitmap
             let x = bitmap_table[0];
             let y = bitmap_table[0];
@@ -91,7 +101,7 @@ macro_rules! bitmap_table {
         } else if $btype == 5 {
 
         } else if $btype == 9 { // create local hashmap
-            if HASHMAP_CREATED = true { let bitmap_table_2: HashMap<>
+            if HASHMAP_CREATED = true { let mut bitmap_table_2: HashMap<Inode, i64>
         }    
     }};
 }
