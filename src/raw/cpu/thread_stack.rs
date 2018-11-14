@@ -4,14 +4,22 @@ extern crate atomic_hashmap;
 extern crate ux;
 
 mod thread;
+mod consts;
 
 #[macro_export]
 macro_rules! thread_stack {
-	($init:expr, $id:expr, $permissions:expr) => {{
+	($init:expr, $run:expr) => {{
 		if $init == 0 {
 			// create initial hashmap
+			let mut thread_stack: PERSISTENT_HashMap<Thread, Task>;
+			if $run == 0 { break; }
+			thread_stack__insert(SYS_THREAD, SYS_PERMISSIONS);
+			
+			// assign thread stack to a thread
+			task!("thread_stack", SYS_THREAD);
 		} else if $init == 1 {
 			// create local hashmap
+			if 
 		}
 	}}; 
 }
