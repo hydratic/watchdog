@@ -16,12 +16,10 @@
 extern crate ux;
 
 // crates for compiling
-extern crate cplusplus_comp;
-extern crate rustc_comp;
-extern crate telephone;
+extern crate watchdog_mrustc_comp as mrustc_comp;
+extern crate watchdog_telephone as telephone;
 
-use cplusplus_comp::*;
-use rustc_comp::*;
+use mrustc_comp::*;
 
 // required to run properly
 mod mem;
@@ -51,22 +49,11 @@ pub fn context_switch(addr: u32, switch_to: &str, lang: &str, compiled: bool) {
 				    rustc_comp::comp(path, 1);
 
                     // call the crate
-                    rustc_comp::get(path);
+					telephone::call(path);
 
                     // execute the crate
                     rustc_comp::call("dev/gen/rust/crate.rs");
                 }
-			
-			    if lang == "C++" {
-                    // call the code that calls the code
-                    cplusplus_comp::comp(path);
-
-                    // now call the Rust that calls the C++
-                    telephone::call(time, "C++");
-
-                    // now that we have access to the code, run it
-                    rustc_comp::exec("dev/gen/cpp/crate.rs");
-			    }
             } else { panic!("Compiled binaries are not supported yet!"); }
 		}
 		"sys" => {
