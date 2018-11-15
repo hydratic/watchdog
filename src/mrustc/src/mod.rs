@@ -1,8 +1,11 @@
 #![no_std]
 
-extern {
- 
-}
+extern crate watchdog_raw as raw;
+extern crate watchdog_telephone as telephone;
 
-// TODO: Add the rest of the functions and arguments
-pub fn mrustc_main(argc: i16) { main(argc, 
+use raw::cpu;
+use telephone::*;
+
+mod comp_mod;
+
+// TODO: Add the functions and arguments
