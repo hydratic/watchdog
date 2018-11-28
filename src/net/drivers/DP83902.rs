@@ -1,9 +1,13 @@
+// DP83902.rs
+// a driver for the DP83902 ethernet device
+
 #![no_std]
 
 extern crate volatile;
 
 use volatile::Volatile;
 
+// TODO: Check these to ensure that the registers are correct
 pub const COMMAND: Volatile<u16> = 300h;
 pub const FACESTART: Volatile<u16> = 301h;
 pub const FACESTOP: Volatile<u16> = 302h;
@@ -23,7 +27,9 @@ pub const REMOTEBYTECOUNT0: Volatile<u16> = 300ah;
 pub const REMOTEBYTECOUNT1: Volatile<u16> = 300bh;
 pub const RECEIVESTATUS: Volatile<u16> = 300ch;
 pub const RECEIVECONFIGURATION: Volatile<u16> = 300ch;
-pub const TRANSMT
+pub const TRANSMTCONFIGURATION: Volatile<u16> = 300dh;
+pub const FAE_TALLY: Volatile<u16> = 300dh;
+pub const 
 
 pub fn send_packet(addr: &str) {
   
