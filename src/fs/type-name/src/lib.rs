@@ -7,7 +7,5 @@ use core::intrinsics;
 
 /// Get the type name of `T`.
 pub fn get<T>() -> &'static str {
-    unsafe {
-        intrinsics::type_name::<T>()
-    }
+    unsafe { intrinsics::type_name::<T>() }
 }
