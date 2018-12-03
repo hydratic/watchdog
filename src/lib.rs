@@ -13,8 +13,10 @@ extern crate memadvise;
 extern crate raw-cpuid;
 extern crate spin;
 extern crate ux;
-#[macro_use] extern crate watchdog_raw;
-#[cfg(test)] extern crate watchdog_test;
+extern crate watchdog_fs as fs;
+extern crate watchdog_ralloc as ralloc;
+#[macro_use] extern crate watchdog_raw as raw;
+#[cfg(test)] extern crate watchdog_test as test;
 extern crate volatile;
 extern crate x86_64;
 
@@ -31,7 +33,6 @@ pub mod utils;
 pub mod interrupts;
 pub mod sshell;
 pub mod oom;
-// pub mod thread;
 
 static PICS: Mutex<ChainedPics> =
     Mutex::new(unsafe { ChainedPics::new(0x20, 0x28) });
