@@ -1,5 +1,7 @@
+; ! x86 !
 ; vbe_set_mode:
 ; Sets a VESA mode
+;
 ; In\	AX = Width
 ; In\	BX = Height
 ; In\	CL = Bits per pixel
