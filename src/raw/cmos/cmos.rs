@@ -9,6 +9,7 @@ extern {
 
 pub static CURRENT_YEAR: i4 = 2018;
 
+// TODO: Add arguments to macro
 macro_rules! read_rtc {
 	() => {{
 		// init
