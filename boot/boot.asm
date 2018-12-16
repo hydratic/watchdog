@@ -1,6 +1,7 @@
 global start
 extern long_mode_start
 extern goto_v86
+extern os_protec_mode
 
 section .text
 bits 32
@@ -56,8 +57,8 @@ check_multiboot:
     jne .no_multiboot
     ret
 .no_multiboot:
-    mov al, "0"
-    jmp error
+	mov al, "1"
+	jmp error
 
 check_cpuid:
     ; Check if CPUID is supported by attempting to flip the ID bit (bit 21)
@@ -92,8 +93,8 @@ check_cpuid:
     je .no_cpuid
     ret
 .no_cpuid:
-    mov al, "1"
-    jmp error
+	mov al, "1"
+	jmp error
 
 check_long_mode:
     ; test if extended processor info in available
@@ -109,8 +110,7 @@ check_long_mode:
     jz .no_long_mode       ; If it's not set, there is no long mode
     ret
 .no_long_mode:
-    mov al, "2"
-    jmp error
+	jmp os_protect
 
 set_up_page_tables:
     ; map P4 table recursively
@@ -166,14 +166,14 @@ enable_paging:
     mov cr0, eax
 
     ret
-
-; Prints `ERR: ` and the given error code to screen and hangs.
-; parameter: error code (in ascii) in al
-error:
-    mov dword [0xb8000], 0x4f524f45
-    mov dword [0xb8004], 0x4f3a4f52
-    mov dword [0xb8008], 0x4f204f20
-    mov byte  [0xb800a], al
+	
+; Prints `ERR: ` and the given error code to screen and hangs.	
+; parameter: error code (in ascii) in al	
+error:	
+    mov dword [0xb8000], 0x4f524f45	
+    mov dword [0xb8004], 0x4f3a4f52	
+    mov dword [0xb8008], 0x4f204f20	
+    mov byte  [0xb800a], al	
     hlt
 
 section .bss
